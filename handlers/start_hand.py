@@ -26,8 +26,6 @@ async def earn(message: Message):
 
     await message.answer(f"Меню для исполнителей")
 
-async def earn_base(message):
-    pass
 
 @router.message((F.text == "Заказать рекламу"))
 async def order(message: Message):
