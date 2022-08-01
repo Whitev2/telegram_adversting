@@ -28,7 +28,7 @@ services:
     volumes:
       - .:/code
     depends_on:
-      - db
+      - mongodb
     network_mode: host
     env_file:
       - .env
