@@ -1,14 +1,13 @@
-version: "3.10"
+version: "3.8"
 
 services:
 
-  mongodb:
+  mongo:
     image: mongo:5.0
-    container_name: mongoADVS
     ports:
-      - "27017:27017"
+      - "27018:27017"
     volumes:
-      - ~/apps/mongo:/data/db
+      - ~/apps/mongo:/data/database
     environment:
       - MONGO_INITDB_ROOT_USERNAME=mongoADVS
       - MONGO_INITDB_ROOT_PASSWORD=mongoADVS
@@ -16,19 +15,17 @@ services:
 
   redis:
     image: redis:alpine
-    container_name: redisADVS
+    container_name: redis
     ports:
-      - "2342:2342"
+      - "2345:2342"
     command: --port 2342
 
   web:
     build: .
-    container_name: telegram_bot
+    container_name: telegram_ADVS
     command: bash -c 'python main.py'
     volumes:
       - .:/code
-    depends_on:
-      - mongodb
     network_mode: host
     env_file:
       - .env

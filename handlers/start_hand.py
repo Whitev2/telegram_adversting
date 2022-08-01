@@ -6,6 +6,8 @@ from aiogram.dispatcher.fsm.context import FSMContext
 from aiogram.types import ReplyKeyboardRemove, Message
 from aiogram.utils.keyboard import ReplyKeyboardBuilder
 
+from data_base.db_use import about_the_executor, about_the_customer
+
 router = Router()
 
 @router.message(commands=['start', 'help'])
@@ -36,10 +38,7 @@ async def order(message: Message):
 
 
 async def start_add_base(message, collection: str):
-    if collection:
-        pass
-    user_id = message.from_user.id
-    username = message.from_user.username
-    user_firstname = message.from_user.first_name
-    user_language = message.from_user.language_code
-    print(f"{user_id}\n{username}\n{user_firstname}\n{user_language}")
+    if collection == 'about_the_executor':
+        await about_the_executor(message)
+    elif collection == 'about_the_customer':
+        await about_the_customer(message)
