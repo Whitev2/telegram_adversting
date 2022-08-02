@@ -4,14 +4,14 @@ from aiogram import Dispatcher
 from aiogram.client.session import aiohttp
 from aiogram.dispatcher.fsm.storage.redis import RedisStorage
 from data import Data
-
+from lava import  lava
 from handlers import start_hand, customer_menu_hand, executor_menu_hand
 
 data = Data()
 
 bot = data.get_bot()
 dp = Dispatcher()
-
+lava()
 
 async def main():
     bot_info = await bot.get_me()

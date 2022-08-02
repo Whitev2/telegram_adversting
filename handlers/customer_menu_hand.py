@@ -98,7 +98,7 @@ async def start_answers(message: Message, state: FSMContext):
         await message.answer(f'Вы хотите заказать рекламу для {channel_name}\n\n'
                              f'Количество человек: {message.text}\n'
                              f'Стоимость выполнения: {click_price}р.\n\n'
-                             f'Сумма заказа: {summ}р.\n'
+                             f'Сумма заказа: {round(summ, 2)}р.\n'
                              f'Комиссия 2% от суммы: {round(summ/100*2, 2)}р.\n\n'
                              f'Итого к оплате: {round(result_sum, 2)}р.', reply_markup=markup.as_markup(resize_keyboar=True))
         await state.set_state(Customer.confirm_or_not)
@@ -119,7 +119,7 @@ async def confirm_pay(message: Message, state: FSMContext):
                          f'в своём кабинете', reply_markup=await main_menu(message))
     else:
         markup = InlineKeyboardBuilder()
-        markup.button(text='Пополнить баланс', callback_data=f'replenish_the_balance {round(new_balance, 1)}')
+        markup.button(text='Пополнить баланс', callback_data=f'replenish_the_balance {round(new_balance, 2)}')
         await message.answer(f"К сожалению на вашем счету не хватает {round(sum-balance, 2)}р. для оплаты данной услуги."
                              , await main_menu(message))
         await message.answer(f'Ваш баланс: {round(new_balance, 1)}', reply_markup=markup.as_markup())
