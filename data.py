@@ -1,6 +1,7 @@
 import os
 import motor.motor_asyncio
 from aiogram import Bot
+from redis.utils import from_url
 
 
 class Data:
