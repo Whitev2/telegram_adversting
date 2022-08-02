@@ -31,3 +31,7 @@ async def info(message: Message):
 async def info(message: Message, state: FSMContext):
     await state.clear()
     await message.answer(f"Хорошо, возврат в меню..", reply_markup=await main_menu(message))
+
+@router.callback_query(lambda call: 'customer' in call.data)
+async def add_telegram(query: types.CallbackQuery, state: FSMContext):
+    await query.message.answer(str(query.data.split()))
