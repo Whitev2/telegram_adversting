@@ -48,8 +48,8 @@ async def load_done(message: types.Message, state: FSMContext):
 @router.message((F.text == 'Отменить'), state=FSMOrder.done)
 async def load_cancel(message: types.Message, state: FSMContext):
     await state.clear()
-    await message.answer(f'Заказ отменен!', reply_markup=ck.exercise_menu())
+    await message.answer(f'Заказ отменен!')
 
 @router.message(state=FSMOrder.done)
 async def another(message: types.Message):
-    await message.answer(f'Дебил, выбери либо Отменить, либо Подтвердить!')
+    await message.answer(f'Я не понимаю Вас, выберите либо Отменить, либо Подтвердить!')
