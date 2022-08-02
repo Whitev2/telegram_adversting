@@ -12,6 +12,7 @@ class Data:
         self.mg_pswd = os.getenv('MONGO_PASSWORD')
         self.mg_host = os.getenv('MONGO_HOST')
         self.mg_port = os.getenv('MONGO_PORT')
+        self.lava = os.getenv('LAVA_KEY')
         self.admins = []
         self.THROTTLE_TIME = 0.8
 

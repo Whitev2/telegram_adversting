@@ -6,3 +6,4 @@ class Customer(StatesGroup):
     start_answers = State()
     answer_2 = State()
     answer_3 = State()
+    confirm_or_not = State()
