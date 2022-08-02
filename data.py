@@ -1,6 +1,7 @@
 import os
 import motor.motor_asyncio
 from aiogram import Bot
+from redis.utils import from_url
 
 
 class Data:
@@ -20,4 +21,4 @@ class Data:
     def mongo_data(self):
         client = motor.motor_asyncio.AsyncIOMotorClient(username=self.mg_user, password=self.mg_pswd, host=self.mg_host,
                                                         port=int(self.mg_port))
-        return client.database
+        return client['database']

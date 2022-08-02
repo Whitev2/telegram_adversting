@@ -6,42 +6,57 @@ from aiogram.dispatcher.fsm.context import FSMContext
 from aiogram.types import ReplyKeyboardRemove, Message
 from aiogram.utils.keyboard import ReplyKeyboardBuilder
 
+from data_base.db_use import about_the_executor, about_the_customer
+from filters.admin_filters import IsAdmin
+from keyboards.client_kb import main_menu, exercise_menu
+from states.customer_states import Customer
+from states.executor_states import Executor
+
 router = Router()
 
 @router.message(commands=['start', 'help'])
-async def start(message: Message):
+async def start(message: Message, state: FSMContext):
+    await state.clear()
     name = message.from_user.first_name
-    markup = ReplyKeyboardBuilder()
-    markup.row(types.KeyboardButton(text="Заработать"))
-    markup.row(types.KeyboardButton(text="Заказать рекламу"))
     await message.answer(f"{name},  здравствуйте!\n\nУ меня вы можете заказать рекламу или заработать, просматривая"
                          f" рекламу\n\nПодскажите, вы хотите заказать рекламу или заработать?",
-                         reply_markup=markup.as_markup(resize_keyboard=True))
+                         reply_markup=await main_menu(message.from_user.id))
 
 
-@router.message((F.text == "Заработать"))
-async def earn(message: Message):
+@router.message((F.text == "Исполнитель"))
+async def earn(message: Message, state: FSMContext):
+    await state.clear()
+    await state.set_state(Executor.executor_menu)
     asyncio.create_task(start_add_base(message, collection='about_the_executor'))  # Запись в базу
-    markup = ReplyKeyboardBuilder()
+    await message.answer(f"Какие задания вы хотите выполнять?", reply_markup=exercise_menu())
 
-    await message.answer(f"Меню для исполнителей")
 
-async def earn_base(message):
-    pass
-
-@router.message((F.text == "Заказать рекламу"))
-async def order(message: Message):
+@router.message((F.text == "Заказчик"))
+async def order(message: Message, state: FSMContext):
+    await state.clear()
+    await state.set_state(Customer.customer_menu)
     asyncio.create_task(start_add_base(message, collection='about_the_customer'))  # Запись в базу
-    markup = ReplyKeyboardBuilder()
+    await message.answer(f"Какие задания вы хотите создать?", reply_markup=exercise_menu())
 
-    await message.answer(f"Меню для заказчиков")
+@router.message((F.text == "Информация"))
+async def info(message: Message, state: FSMContext):
+    await state.clear()
+    await message.answer(f"Информация")
+
+@router.message((F.text == "Мой кабинет"))
+async def my_cabinet(message: Message, state: FSMContext):
+    await state.clear()
+    await message.answer(f"Мой кабинет")
+
+@router.message((F.text == "Админ панель"))
+async def admin_panel(message: Message, state: FSMContext):
+    await state.clear()
+    await message.answer(f"Админка?")
+
 
 
 async def start_add_base(message, collection: str):
-    if collection:
-        pass
-    user_id = message.from_user.id
-    username = message.from_user.username
-    user_firstname = message.from_user.first_name
-    user_language = message.from_user.language_code
-    print(f"{user_id}\n{username}\n{user_firstname}\n{user_language}")
+    if collection == 'about_the_executor':
+        await about_the_executor(message)
+    elif collection == 'about_the_customer':
+        await about_the_customer(message)
