@@ -13,7 +13,7 @@ class FSMOrder(StatesGroup):
     urlzadanie = State()
     done = State()
 
-@router.callback_query(lambda call: call.data == f'{role} {user_id} reaction', state = None)
+@router.callback_query(lambda call: 'customer' in call.data, state = Customer)
 async def order_start(query: types.CallbackQuery, state: FSMContext):
     await state.set_state(FSMOrder.amount)
     await query.message.reply('Вы выбрали реакции')
