@@ -1,6 +1,7 @@
 from aiogram import Router, F, Bot
 from aiogram import types
 from aiogram.dispatcher.fsm.context import FSMContext
+from aiogram.exceptions import TelegramBadRequest
 from aiogram.types import ReplyKeyboardRemove, Message
 from aiogram.utils.keyboard import ReplyKeyboardBuilder, InlineKeyboardBuilder
 
@@ -86,7 +87,11 @@ async def func1(message: Message, state: FSMContext):
     user_id = data['question_user_id'][-1]
     user_answer = data['question_user_id']
     m_id = user_answer[1]
-    await bot.send_message(chat_id=user_id, text=f'Вам пришел ответ от Техподдержки\n '
-                                                 f'Ответ Техподдержки: {message.text}', reply_to_message_id=int(m_id))
+    try:
+        await bot.send_message(chat_id=user_id, text=f'Вам пришел ответ от Техподдержки\n '
+                                                     f'Ответ Техподдержки: {message.text}', reply_to_message_id=int(m_id))
+    except TelegramBadRequest:
+        await bot.send_message(chat_id=user_id, text=f'Вам пришел ответ от Техподдержки\n '
+                                                     f'Ответ Техподдержки: {message.text}')
 
 
