@@ -61,14 +61,14 @@ async def new_ask_yes(query: types.CallbackQuery, state: FSMContext):
 
 @router.message(state=a.start_ask)
 async def sendtosupport(message: Message, state: FSMContext):
+    m_id = message.message_id
     username = message.from_user.username
     user_id = message.from_user.id
     await state.set_state(a.send_ask)
-    await state.update_data(ask_support=message.text)
-    data = await state.get_data()
-    question = data['ask_support']
+    await state.update_data(ask=message.text)
+    question = message.text
     markup = InlineKeyboardBuilder()
-    markup.row(types.InlineKeyboardButton(text='Ответить', callback_data=f'question_to_support {user_id}'))
+    markup.row(types.InlineKeyboardButton(text='Ответить', callback_data=f'question_to_support {m_id} {user_id}'))
     await bot.send_message(chat_id='-1001684049768', text=f'Пришел новый вопрос от пользователя!\n@{username}\n{question}',\
                         reply_markup=markup.as_markup(resize_keyboard=True))
     await message.answer(f'Ваш вопрос отправлен!')
@@ -84,7 +84,9 @@ async def answerforuser(query: types.CallbackQuery, state: FSMContext):
 async def func1(message: Message, state: FSMContext):
     data = await state.get_data()
     user_id = data['question_user_id'][-1]
-    await bot.send_message(chat_id=user_id, text=f'Вам пришел ответ от Техподдержки\nВаш вопрос:\
-    \nОтвет Техподдержки: {message.text}')
+    user_answer = data['question_user_id']
+    m_id = user_answer[1]
+    await bot.send_message(chat_id=user_id, text=f'Вам пришел ответ от Техподдержки\n '
+                                                 f'Ответ Техподдержки: {message.text}', reply_to_message_id=int(m_id))
 
 
