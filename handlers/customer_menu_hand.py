@@ -12,6 +12,7 @@ from keyboards.client_inline import telegram
 from keyboards.client_kb import main_menu, exercise_menu
 from states.customer_states import Customer
 
+
 router = Router()
 
 router.message.filter(state=Customer)  # После этой строки могут пройти только состояния из Customer
@@ -47,7 +48,7 @@ async def add_telegram(query: types.CallbackQuery, state: FSMContext):
     await state.update_data(callback=callback)
     markup = ReplyKeyboardBuilder()
     markup.row(types.KeyboardButton(text='Отменить'))
-    keyboard = markup.as_markup(resize_keyboar=True)
+    keyboard = markup.as_markup(resize_keyboard=True)
     if callback[-1] == 'channel':
         await query.message.answer(f'Пришлите мне ссылку на канал, на который нужно подписаться', reply_markup=keyboard)
     elif callback[-1] == 'bot':
@@ -100,7 +101,7 @@ async def start_answers(message: Message, state: FSMContext):
                              f'Стоимость выполнения: {click_price}р.\n\n'
                              f'Сумма заказа: {round(summ, 2)}р.\n'
                              f'Комиссия 2% от суммы: {round(summ/100*2, 2)}р.\n\n'
-                             f'Итого к оплате: {round(result_sum, 2)}р.', reply_markup=markup.as_markup(resize_keyboar=True))
+                             f'Итого к оплате: {round(result_sum, 2)}р.', reply_markup=markup.as_markup(resize_keyboard=True))
         await state.set_state(Customer.confirm_or_not)
     else:
         await message.answer("Простите, я принимаю только числа")

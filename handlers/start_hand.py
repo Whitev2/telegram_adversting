@@ -9,6 +9,7 @@ from aiogram.utils.keyboard import ReplyKeyboardBuilder
 from data_base.db_use import about_the_executor, about_the_customer
 from filters.admin_filters import IsAdmin
 from keyboards.client_kb import main_menu, exercise_menu
+from keyboards.infobot_inline import info_menu
 from states.customer_states import Customer
 from states.executor_states import Executor
 
@@ -43,7 +44,7 @@ async def order(message: Message, state: FSMContext):
 @router.message((F.text == "Информация"))
 async def info(message: Message, state: FSMContext):
     await state.clear()
-    await message.answer(f"Информация")
+    await message.answer(f"Информация о боте:", reply_markup=info_menu())
 
 
 @router.message((F.text == "Мой кабинет"))
