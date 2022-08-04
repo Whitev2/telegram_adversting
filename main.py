@@ -5,13 +5,12 @@ from aiogram.client.session import aiohttp
 from aiogram.dispatcher.fsm.storage.redis import RedisStorage
 from data import Data
 from handlers import start_hand, customer_menu_hand, executor_menu_hand, information_menu_hand
-from handlers import start_hand, customer_menu_hand, executor_menu_hand
 from payment import Payments
 
 data = Data()
-
+storage = RedisStorage.from_url(data.redis_url)
 bot = data.get_bot()
-dp = Dispatcher()
+dp = Dispatcher(storage)
 
 async def main():
     bot_info = await bot.get_me()

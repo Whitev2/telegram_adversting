@@ -4,7 +4,9 @@ from aiogram.types import Message
 
 from data import Data
 
+
 data = Data()
+
 
 async def about_the_executor(message: Message):
     t_id = message.from_user.id
