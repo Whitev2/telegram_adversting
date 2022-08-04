@@ -6,7 +6,7 @@ from aiogram.types import ReplyKeyboardRemove, Message
 from aiogram.utils.keyboard import ReplyKeyboardBuilder, InlineKeyboardBuilder
 
 from keyboards.infobot_inline import info_menu
-from states.ask_states import Ask as a
+from states.ask_states import Question
 from main import bot
 
 router = Router()
@@ -47,7 +47,7 @@ async def dev(query: types.CallbackQuery):
                                reply_markup=markup.as_markup(resize_keyboard=True))
 
 @router.callback_query(lambda call: call.data == 'question_from_user')
-async def ask_from_user(query: types.CallbackQuery):
+async def question_from_user(query: types.CallbackQuery):
     markup = InlineKeyboardBuilder()
     markup.row(types.InlineKeyboardButton(text='Да', callback_data='confirm_question'),\
                types.InlineKeyboardButton(text='Нет', callback_data='back'))
@@ -55,17 +55,17 @@ async def ask_from_user(query: types.CallbackQuery):
     await query.message.answer(f'Вы хотите задать вопрос Техподдержке?', reply_markup=markup.as_markup(resize_keyboard=True))
 
 @router.callback_query(lambda call: call.data =='confirm_question')
-async def new_ask_yes(query: types.CallbackQuery, state: FSMContext):
+async def question_confirm(query: types.CallbackQuery, state: FSMContext):
     await query.message.delete()
-    await state.set_state(a.start_ask)
+    await state.set_state(Question.question_start)
     await query.message.answer(f'Введите ваш вопрос:')
 
-@router.message(state=a.start_ask)
-async def sendtosupport(message: Message, state: FSMContext):
+@router.message(state=Question.question_start)
+async def send_to_support(message: Message, state: FSMContext):
     m_id = message.message_id
     username = message.from_user.username
     user_id = message.from_user.id
-    await state.set_state(a.send_ask)
+    await state.set_state(Question.question_send)
     await state.update_data(ask=message.text)
     question = message.text
     markup = InlineKeyboardBuilder()
@@ -75,23 +75,23 @@ async def sendtosupport(message: Message, state: FSMContext):
     await message.answer(f'Ваш вопрос отправлен!')
 
 @router.callback_query(lambda call: 'question_to_support' in call.data)
-async def answerforuser(query: types.CallbackQuery, state: FSMContext):
+async def answer_for_user(query: types.CallbackQuery, state: FSMContext):
     await query.message.answer(f'Введите ответ для пользователя:')
     data = query.data.split()
     await state.update_data(question_user_id=data)
-    await state.set_state(a.answer_for_user)
+    await state.set_state(Question.answer_for_user)
 
-@router.message(state=a.answer_for_user)
-async def func1(message: Message, state: FSMContext):
+@router.message(state=Question.answer_for_user)
+async def get_answer(message: Message, state: FSMContext):
     data = await state.get_data()
     user_id = data['question_user_id'][-1]
     user_answer = data['question_user_id']
     m_id = user_answer[1]
     try:
-        await bot.send_message(chat_id=user_id, text=f'Вам пришел ответ от Техподдержки\n '
-                                                     f'Ответ Техподдержки: {message.text}', reply_to_message_id=int(m_id))
+        await bot.send_message(chat_id=user_id, text=f'Вам пришел ответ на ваш вопрос\n'
+                                                     f'Ответ: {message.text}', reply_to_message_id=int(m_id))
     except TelegramBadRequest:
-        await bot.send_message(chat_id=user_id, text=f'Вам пришел ответ от Техподдержки\n '
-                                                     f'Ответ Техподдержки: {message.text}')
+        await bot.send_message(chat_id=user_id, text=f'Вам пришел ответ на ваш вопрос\n'
+                                                     f'Ответ: {message.text}')
 
 
