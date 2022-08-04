@@ -6,7 +6,7 @@ from aiogram.types import ReplyKeyboardRemove, Message
 from aiogram.utils.keyboard import ReplyKeyboardBuilder, InlineKeyboardBuilder
 
 from keyboards.infobot_inline import info_menu
-from states.ask_states import Question
+from states.question_states import Question
 from main import bot
 
 router = Router()
@@ -76,7 +76,7 @@ async def send_to_support(message: Message, state: FSMContext):
 
 @router.callback_query(lambda call: 'question_to_support' in call.data)
 async def answer_for_user(query: types.CallbackQuery, state: FSMContext):
-    await query.message.answer(f'Введите ответ для пользователя:')
+    await query.message.reply(f'Введите ответ для пользователя:')
     data = query.data.split()
     await state.update_data(question_user_id=data)
     await state.set_state(Question.answer_for_user)
@@ -88,10 +88,10 @@ async def get_answer(message: Message, state: FSMContext):
     user_answer = data['question_user_id']
     m_id = user_answer[1]
     try:
-        await bot.send_message(chat_id=user_id, text=f'Вам пришел ответ на ваш вопрос\n'
+        await bot.send_message(chat_id=user_id, text=f'Вам пришел ответ на ваш вопрос✅\n'
                                                      f'Ответ: {message.text}', reply_to_message_id=int(m_id))
     except TelegramBadRequest:
-        await bot.send_message(chat_id=user_id, text=f'Вам пришел ответ на ваш вопрос\n'
+        await bot.send_message(chat_id=user_id, text=f'Вам пришел ответ на ваш вопрос✅\n'
                                                      f'Ответ: {message.text}')
 
 
