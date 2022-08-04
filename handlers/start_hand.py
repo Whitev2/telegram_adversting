@@ -14,6 +14,7 @@ from states.executor_states import Executor
 
 router = Router()
 
+
 @router.message(commands=['start', 'help'])
 async def start(message: Message, state: FSMContext):
     await state.clear()
@@ -38,21 +39,23 @@ async def order(message: Message, state: FSMContext):
     asyncio.create_task(start_add_base(message, collection='about_the_customer'))  # Запись в базу
     await message.answer(f"Какие задания вы хотите создать?", reply_markup=exercise_menu())
 
+
 @router.message((F.text == "Информация"))
 async def info(message: Message, state: FSMContext):
     await state.clear()
     await message.answer(f"Информация")
+
 
 @router.message((F.text == "Мой кабинет"))
 async def my_cabinet(message: Message, state: FSMContext):
     await state.clear()
     await message.answer(f"Мой кабинет")
 
+
 @router.message((F.text == "Админ панель"))
 async def admin_panel(message: Message, state: FSMContext):
     await state.clear()
     await message.answer(f"Админка?")
-
 
 
 async def start_add_base(message, collection: str):
