@@ -93,5 +93,6 @@ async def get_answer(message: Message, state: FSMContext):
     except TelegramBadRequest:
         await bot.send_message(chat_id=user_id, text=f'Вам пришел ответ на ваш вопрос✅\n'
                                                      f'Ответ: {message.text}')
+    await state.clear()
 
 
