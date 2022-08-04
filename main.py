@@ -4,8 +4,9 @@ from aiogram import Dispatcher
 from aiogram.client.session import aiohttp
 from aiogram.dispatcher.fsm.storage.redis import RedisStorage
 from data import Data
-from lava import lava
-from handlers import start_hand, customer_menu_hand, executor_menu_hand, information_menu_hand
+from lava import  lava
+from handlers import start_hand, customer_menu_hand, executor_menu_hand
+from payment import Payments
 
 data = Data()
 
