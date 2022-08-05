@@ -1,16 +1,19 @@
 from datetime import datetime
+import random
 
 from aiogram.types import Message
 
 from data import Data
+from orders_info.user_info import User
 
 data = Data()
 
 
-class Order:
-    def __init__(self):
+class Order(User):
+    def __init__(self, customer=False, executor=False):
+        super().__init__(customer=customer, executor=executor)
         self.database = data.mongo_data()
-        self.collection = self.database['orders']
+        self.collection_order = self.database['orders']
 
     async def new_order(self, message: Message, link: str, advs_type: str, amount_people: int,
                         click_price: float, description=None, media_id=None, title=None):
@@ -32,7 +35,7 @@ class Order:
         """
         t_id = message.from_user.id
         try:
-            count_documents = int(await self.collection.count_documents({}))
+            count_documents = int(await self.collection_order.count_documents({}))
             print(count_documents)
             if not count_documents:
                 count_documents = 0
@@ -57,7 +60,7 @@ class Order:
         """
 
         if order is int:
-            order_info = await self.collection.find_one({"_id": int(order)})
+            order_info = await self.collection_order.find_one({"_id": int(order)})
             if order['status'] != 'completed':
                 if int(order_info['amount_people']) == int(order_info['amount_completed']):
                     await self.collection.update_one({"_id": int(order)}, {'status': 'completed'})
@@ -66,7 +69,7 @@ class Order:
                 return True
 
         elif order is str:
-            order_info = await self.collection.find_one({"order_name": str(order)})
+            order_info = await self.collection_order.find_one({"order_name": str(order)})
             if order['status'] != 'completed':
                 if int(order_info['amount_people']) == int(order_info['amount_completed']):
                     await self.collection.update_one({"order_name": str(order)}, {'status': 'completed'})
@@ -87,8 +90,24 @@ class Order:
         params = {'$inc': {'amount_completed': 1}}
 
         if order is int:
-            await self.collection.update_one({"_id": int(order)}, params)
+            await self.collection_order.update_one({"_id": int(order)}, params)
         elif order is str:
             await self.collection.update_one({"order_name": str(order)}, params)
         else:
             print('Error')
+
+    async def order_to_be_executed(self, telegram_id: int, advs_type: str):
+
+        complete_orders = await self.get_completed_orders(telegram_id)
+        async for order in self.collection_order.aggregate(
+                [{"$match": {'$and': [{'advs_type': str(advs_type)},
+                                      {'status': 'process'}, {'_id': {'$nin': complete_orders}}]}},
+                 {"$sample": {"size": 1}}]):
+            return order
+
+    async def completed_orders(self, telegram_id: int, advs_type: str, order_id: int, order_name: str):
+
+        collection = self.collection_order['completed_tasks']
+        params = {'TG_ID': int(telegram_id), 'advs_type': advs_type, 'order_id': order_id,
+                  'order_name': order_name, 'datetime_complete': datetime.now()}
+        await collection.insert_one(params)

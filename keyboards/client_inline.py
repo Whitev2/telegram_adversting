@@ -16,3 +16,5 @@ async def telegram(message: Message, role: str):
         return markup.as_markup()
     else:
         print('ERROR')
+
+

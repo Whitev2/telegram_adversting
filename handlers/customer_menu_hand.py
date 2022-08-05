@@ -1,15 +1,13 @@
-import asyncio
-from aiogram import Router, F, Bot
+from aiogram import Router, F
 from aiogram import types
-from aiogram.dispatcher.filters.command import CommandStart, CommandObject
 from aiogram.dispatcher.fsm.context import FSMContext
-from aiogram.types import ReplyKeyboardRemove, Message
+from aiogram.types import Message
 from aiogram.utils.keyboard import ReplyKeyboardBuilder, InlineKeyboardBuilder
 
-from data_base.db_use import about_the_executor, about_the_customer, select_row_user, update_one_value
-from handlers.orders import Order
+from data_base.db_use import select_row_user, update_one_value
+from orders_info.orders import Order
 from keyboards.client_inline import telegram
-from keyboards.client_kb import main_menu, exercise_menu
+from keyboards.client_kb import main_menu
 from states.customer_states import Customer
 
 router = Router()

@@ -3,7 +3,7 @@ from aiogram.dispatcher.filters.state import State, StatesGroup
 from aiogram import types
 from aiogram import Router, F
 from aiogram.utils.keyboard import ReplyKeyboardBuilder
-from keyboards import client_kb as ck
+
 router = Router()
 
 
@@ -13,7 +13,7 @@ class FSMOrder(StatesGroup):
     urlzadanie = State()
     done = State()
 
-@router.callback_query(lambda call: 'customer' in call.data, state = Customer)
+@router.callback_query(lambda call: 'customer' in call.data)
 async def order_start(query: types.CallbackQuery, state: FSMContext):
     await state.set_state(FSMOrder.amount)
     await query.message.reply('Вы выбрали реакции')
