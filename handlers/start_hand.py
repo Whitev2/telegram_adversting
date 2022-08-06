@@ -49,11 +49,6 @@ async def info(message: Message, state: FSMContext):
     await message.answer(f"Информация о боте:", reply_markup=info_menu())
 
 
-@router.message((F.text == "Мой кабинет"))
-async def my_cabinet(message: Message, state: FSMContext):
-    await state.clear()
-    await message.answer(f"Мой кабинет")
-
 
 @router.message((F.text == "Админ панель"))
 async def admin_panel(message: Message, state: FSMContext):

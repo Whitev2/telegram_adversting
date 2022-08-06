@@ -7,6 +7,7 @@ from aiogram.types import Message
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
 from keyboards.admin_kb import admin_menu, user_management, bot_management, bot_statistics
+from keyboards.client_kb import main_menu
 from orders_info.orders import Order
 from states.admin_state import Admin
 
@@ -34,8 +35,15 @@ async def edit_balance(message: Message, state: FSMContext):
 
 @router.message((F.text == "Назад в меню"))
 async def edit_balance(message: Message, state: FSMContext):
-    await message.answer(f"Добро пожаловать в админ панель", reply_markup=bot_statistics())
+    await message.answer(f"Добро пожаловать в админ панель", reply_markup=admin_menu())
 
+@router.message((F.text == "Назад"))
+async def edit_balance(message: Message, state: FSMContext):
+    await state.clear()
+    name = message.from_user.first_name
+    await message.answer(f"{name},  здравствуйте!\n\nУ меня вы можете заказать рекламу или заработать, просматривая"
+                         f" рекламу\n\nПодскажите, вы хотите заказать рекламу или заработать?",
+                         reply_markup=await main_menu(message.from_user.id))
 
 
 @router.message((F.text == "Редактировать баланс"))

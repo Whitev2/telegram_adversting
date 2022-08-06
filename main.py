@@ -4,7 +4,7 @@ from aiogram import Dispatcher
 from aiogram.client.session import aiohttp
 from aiogram.dispatcher.fsm.storage.redis import RedisStorage
 from data import Data
-from handlers import start_hand, customer_menu_hand, executor_menu_hand, information_menu_hand, admin_hand
+from handlers import start_hand, customer_menu_hand, executor_menu_hand, information_menu_hand, admin_hand, my_profile
 from payment import Payments
 
 data = Data()
@@ -21,6 +21,7 @@ async def main():
     dp.include_router(executor_menu_hand.router)
     dp.include_router(information_menu_hand.router)
     dp.include_router(admin_hand.router)
+    dp.include_router(my_profile.router)
     await dp.start_polling(bot)
 
 

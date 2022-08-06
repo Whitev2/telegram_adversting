@@ -9,8 +9,8 @@ async def main_menu(t_id):
     markup = ReplyKeyboardBuilder()
     markup.row(types.KeyboardButton(text='Исполнитель'))
     markup.row(types.KeyboardButton(text='Заказчик'))
-    markup.row(types.KeyboardButton(text='Информация'))
     markup.row(types.KeyboardButton(text='Мой кабинет'))
+    markup.row(types.KeyboardButton(text='Информация'))
     if t_id in data.admins:
         markup.row(types.KeyboardButton(text='Админ панель'))
     markup.adjust(2, 1, 1)
