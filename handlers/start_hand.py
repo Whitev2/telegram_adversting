@@ -8,8 +8,10 @@ from aiogram.utils.keyboard import ReplyKeyboardBuilder
 
 from data_base.db_use import about_the_executor, about_the_customer
 from filters.admin_filters import IsAdmin
+from keyboards.admin_kb import admin_menu
 from keyboards.client_kb import main_menu, exercise_menu
 from keyboards.infobot_inline import info_menu
+from states.admin_state import Admin
 from states.customer_states import Customer
 from states.executor_states import Executor
 
@@ -56,7 +58,8 @@ async def my_cabinet(message: Message, state: FSMContext):
 @router.message((F.text == "Админ панель"))
 async def admin_panel(message: Message, state: FSMContext):
     await state.clear()
-    await message.answer(f"Админка?")
+    await state.set_state(Admin.Admin_menu)
+    await message.answer(f"Добро пожаловать в админ панель", reply_markup=admin_menu())
 
 
 async def start_add_base(message, collection: str):

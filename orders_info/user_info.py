@@ -79,3 +79,9 @@ class User:
     async def add_complete_order(self, telegram_id, order_id):
         c_name = 'completed_orders'
         await self.push_info(telegram_id, value=int(order_id), column_name=c_name)
+
+    async def top_up_balance(self, t_id, replenishment_amount):
+        try:
+            await self.collection.update_one({'_id': int(t_id)}, {'$inc': {'main_balance': float(replenishment_amount)}})
+        except Exception as e:
+            print(e)
