@@ -227,7 +227,8 @@ async def confirm_other_task_pay(message: Message, state: FSMContext):
     advs_type = 'other'
     new_balance = user_balance - order_sum
     if order_sum <= user_balance:
-        await order.new_order(message, advs_type=advs_type, amount_people=count, click_price=price, link=link)
+        await order.new_order(message, advs_type=advs_type, amount_people=count, click_price=price, link=link,
+                              title=name, description=description)
         await update_one_value(message.from_user.id, 'main_balance', round(new_balance, 2), 'about_the_customer')
         await message.answer(f'Успешно!\n\nС вашего счёта списано {round(order_sum, 2)}р.'
                              f'\n\nВы можете следить за прогрессом выполнения '

@@ -44,7 +44,7 @@ class Order(User):
                       'amount_people': amount_people, 'click_price': float(click_price), 'order_date': datetime.now(),
                       'amount_completed': 0, 'status': 'process', 'description': description,
                       'media_id': media_id, 'title': title}
-            await self.collection.insert_one(params)
+            await self.collection_order.insert_one(params)
             return True
         except Exception as error:
             print(error)
