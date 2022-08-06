@@ -4,7 +4,7 @@ from aiogram.utils.keyboard import InlineKeyboardBuilder
 def info_menu():
     markup = InlineKeyboardBuilder()
     markup.button(text='Топ исполнителей', callback_data='top_exe')
-    markup.button(text='Наш чат', url='https://vk.com/white1_knight')
+    markup.button(text='Наш чат', url='https://t.me')
     markup.button(text='Задать вопрос', callback_data='question_from_user')
     markup.button(text='Правила', url='https://telegra.ph/Pravila-08-04-15')
     markup.button(text='Разработчики', callback_data='dev')
