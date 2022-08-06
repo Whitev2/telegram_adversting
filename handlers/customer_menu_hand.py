@@ -23,7 +23,11 @@ async def info(message: Message):
 
 @router.message((F.text == "Другие задания"))
 async def info(message: Message):
-    await message.answer(f"Другие задания")
+    markup = InlineKeyboardBuilder()
+    markup.row(types.InlineKeyboardButton(text='Создать задание', callback_data='start_other_task'))
+    await message.answer(f'Тут вы можете создать любое задание с подробным описанием.\n\n'
+                         f'❗️Засчитываться оно будет, только после вашего подтверждения',\
+                         reply_markup=markup.as_markup(resize_keyboard=True))
 
 
 @router.message((F.text == "Назад в меню"))
@@ -132,3 +136,107 @@ async def confirm_pay(message: Message, state: FSMContext):
                              f" для оплаты данной услуги."
                              , await main_menu(message))
         await message.answer(f'Ваш баланс: {round(new_balance, 1)}', reply_markup=markup.as_markup())
+
+@router.callback_query(lambda call: call.data == 'start_other_task')
+async def add_other_task(query: types.CallbackQuery, state: FSMContext):
+    markup = ReplyKeyboardBuilder()
+    markup.row(types.KeyboardButton(text='Отменить'))
+    await query.message.delete()
+    await state.set_state(Customer.link_other_task)
+    await query.message.answer(f'Напишите название вашего задания\n\n\nНе более 50 символов!',\
+                               reply_markup=markup.as_markup(resize_keyboard=True))
+
+@router.message(state=Customer.link_other_task)
+async def link_of_other_task(message: Message, state: FSMContext):
+    await state.set_state()
+    await state.update_data(name=message.text)
+    await state.set_state(Customer.description_other_task)
+    await message.answer(f'Введите ссылку на главный источник, где выполнять задание.\n\n\n'
+                         f'❗️Ссылка должна начинаться с http:// или https://\n'
+                         f'❗️Если ссылок в задании несколько, то укажите остальные в описании.')
+
+@router.message(state=Customer.description_other_task)
+async def description_of_other_task(message: Message, state: FSMContext):
+    if 'http' in message.text:
+        await state.set_state()
+        await state.update_data(link=message.text)
+        await state.set_state(Customer.count_of_executions_other_task)
+        await message.answer(f'Напишите подробное описание')
+    else:
+        await message.answer("Ошибка, введенная ссылка не действительна, повторите попытку")
+
+@router.message(state=Customer.count_of_executions_other_task)
+async def count_of_executions(message: Message, state: FSMContext):
+    await state.set_state()
+    await state.update_data(description=message.text)
+    await state.set_state(Customer.price_other_task)
+    await message.answer(f'Введите количество выполнений')
+
+@router.message(state=Customer.price_other_task)
+async def price_other_task(message: Message, state: FSMContext):
+    if int(message.text):
+        await state.set_state()
+        await state.update_data(count=int(message.text))
+        await state.set_state(Customer.confirm_or_not_other_task)
+        await message.answer(f'Введите стоимость одного выполнения')
+    else:
+        await message.answer("Простите, я принимаю только числа")
+
+@router.message(state=Customer.confirm_or_not_other_task)
+async def confirm_or_not_other_task(message: Message, state: FSMContext):
+    await state.update_data(price=message.text)
+    data = await state.get_data()
+    name = data['name']
+    link = data['link']
+    description = data['description']
+    count = data['count']
+    price = data['price']
+    summ = count * float(price)
+    result_sum = summ + (summ / 100 * 2)
+    await state.update_data(order_sum=result_sum)
+
+    if float(message.text):
+        markup = ReplyKeyboardBuilder()
+        markup.row(types.KeyboardButton(text='Отменить'))
+        markup.row(types.KeyboardButton(text='Подтвердить'))
+        markup.adjust(2)
+        await message.answer(f'Название вашего задания: {name}\n\n'
+                             f'Вы хотите заказать задание для: {link}\n'
+                             f'Описание задания: {description}\n'
+                             f'Количество выполнений: {count}\n'
+                             f'Стоимость одного выполнения: {price}\n\n'
+                             f'Сумма заказа: {summ}\n'
+                             f'Коммсисия бота: 2%\n\n'
+                             f'Итого к оплате: {result_sum}',
+                             reply_markup=markup.as_markup(resize_keyboard=True))
+        await state.set_state(Customer.confirm_other_task)
+    else:
+        await message.answer("Простите, я принимаю только числа")
+
+@router.message((F.text == "Подтвердить"), state=Customer.confirm_other_task)
+async def confirm_other_task_pay(message: Message, state: FSMContext):
+    user_info = await select_row_user(message.from_user.id, 'about_the_customer')
+    data = await state.get_data()
+    name = data['name']
+    link = data['link']
+    description = data['description']
+    count = data['count']
+    price = data['price']
+    order_sum = data['order_sum']
+    user_balance = user_info['main_balance']
+    advs_type = 'other'
+    new_balance = user_balance - order_sum
+    if order_sum <= user_balance:
+        await order.new_order(message, advs_type=advs_type, amount_people=count, click_price=price, link=link)
+        await update_one_value(message.from_user.id, 'main_balance', round(new_balance, 2), 'about_the_customer')
+        await message.answer(f'Успешно!\n\nС вашего счёта списано {round(order_sum, 2)}р.'
+                             f'\n\nВы можете следить за прогрессом выполнения '
+                             f'в своём кабинете', reply_markup=await main_menu(message))
+    else:
+        await message.answer('Что-то пошло не так')
+
+
+
+
+
+
