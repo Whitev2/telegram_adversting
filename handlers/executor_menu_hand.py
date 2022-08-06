@@ -35,7 +35,7 @@ async def info(message: Message):
 @router.message((F.text == "Назад в меню"))
 async def info(message: Message, state: FSMContext):
     await state.clear()
-    await message.answer(f"Хорошо, возврат в меню..", reply_markup=await main_menu(message))
+    await message.answer(f"Хорошо, возврат в меню..", reply_markup=await main_menu(message.from_user.id))
 
 
 @router.callback_query(lambda call: 'executor' in call.data and 'channel' in call.data)
