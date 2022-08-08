@@ -98,3 +98,7 @@ class Order(User_balance):
         params = {'telegram_ID': int(telegram_id), 'advs_type': advs_type, 'task_ID': order_id,
                   'datetime_complete': datetime.now(), 'click_price': click_price}
         await collection.insert_one(params)
+
+    async def get_order_info(self, order_id: int):
+        order_info = await self.collection_order.find_one({'_id': int(order_id)})
+        return order_info

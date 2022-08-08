@@ -200,13 +200,22 @@ async def confirm_pay(message: Message, state: FSMContext):
     amount_people = data['amount_people']
     user_balance = float(user_info['advertising_balance'])
     result_sum = float(data['order_sum'])
+    msg_id = data['msg_id']
 
-    if result_sum <= user_balance:
+    if result_sum <= user_balance and advs_type == 'post':
+        await order.new_order(message, advs_type=advs_type, amount_people=amount_people,
+                              click_price=click_price, link=msg_id, order_sum=order_sum)
+        await message.answer(f'Успешно!\n\nС вашего счёта списано {round(result_sum, 2)}р.'
+                             f'\n\nВы можете следить за прогрессом выполнения '
+                             f'в своём кабинете', reply_markup=await main_menu(message))
+
+    elif result_sum <= user_balance:
         await order.new_order(message, advs_type=advs_type, amount_people=amount_people,
                               click_price=click_price, link=channel_link, order_sum=order_sum)
         await message.answer(f'Успешно!\n\nС вашего счёта списано {round(result_sum, 2)}р.'
                              f'\n\nВы можете следить за прогрессом выполнения '
                              f'в своём кабинете', reply_markup=await main_menu(message))
+
     else:
         new_balance = order_sum - user_balance
         markup = InlineKeyboardBuilder()
@@ -244,6 +253,8 @@ async def start_answers(message: Message, state: FSMContext):
     markup.row(types.KeyboardButton(text='Подтвердить'))
     markup.adjust(2)
 
+
+    await state.update_data(msg_id=message_id)
     await state.update_data(name=None)
     await state.update_data(link=None)
     await state.update_data(advs_type='post')
