@@ -20,7 +20,10 @@ async def close(query: types.CallbackQuery):
 @router.callback_query(lambda call: call.data == 'back')
 async def back(query: types.CallbackQuery):
     await query.message.delete()
-    await query.message.answer(f"Информация о боте:", reply_markup=info_menu())
+    await query.message.answer(f"Тут вы можете:\n\n"
+                               f"— Ознакомиться со списком лучших исполнителей\n"
+                               f"— Найти ответ на интересующий вас вопрос\n"
+                               f"— Предложить новую идею или сообщить о баге", reply_markup=info_menu())
 
 
 @router.callback_query(lambda call: call.data == 'top_exe')

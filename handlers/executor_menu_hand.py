@@ -14,7 +14,7 @@ from states.executor_states import Executor
 router = Router()
 
 router.message.filter(state=Executor)  # После этой строки могут пройти только состояния из Executor
-order = Order(executor=True)
+order = Order()
 
 
 @router.message((F.text == "Телеграм"))
@@ -40,8 +40,7 @@ async def info(message: Message, state: FSMContext):
 
 @router.callback_query(lambda call: 'executor' in call.data and 'channel' in call.data)
 async def add_telegram(query: types.CallbackQuery, state: FSMContext):
-    orders_for_user = await order.order_to_be_executed(query.from_user.id,
-                                                       'channel')  # получает рандомную непросмотренную новость
+    orders_for_user = await order.order_to_be_executed(query.from_user.id, 'channel')  # получает рандомную непросмотренную новость
     if orders_for_user is not None:
         markup = InlineKeyboardBuilder()
         markup.button(text='Выполнить', url=orders_for_user['link'])

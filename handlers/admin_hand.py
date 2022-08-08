@@ -9,13 +9,13 @@ from aiogram.utils.keyboard import InlineKeyboardBuilder
 from keyboards.admin_kb import admin_menu, user_management, bot_management, bot_statistics
 from keyboards.client_kb import main_menu
 from orders_info.orders import Order
+from orders_info.user_info import Users
 from states.admin_state import Admin
 
 router = Router()
 
 router.message.filter(state=Admin)  # После этой строки могут пройти только состояния из Executor
-executor = Order(executor=True)
-customer = Order(customer=True)
+user = Users()
 
 
 @router.message((F.text == "Управление пользователями"))
@@ -54,27 +54,27 @@ async def edit_balance(message: Message, state: FSMContext):
 
 @router.message(state=Admin.edit_balance)
 async def edit_balance(message: Message, state: FSMContext):
-    user_info = await customer.get_all_info(int(message.text))
+    user_info = await user.get_all_info(int(message.text))
     if user_info is not None:
         await state.update_data(user_id=int(message.text))
         await state.set_state(Admin.up_balance)
         await message.answer(f"Пользователь: @{user_info['username']}\n\n"
                              f"➖➖➖➖➖➖➖➖\n"
-                             f"Рекламный баланс: {user_info['main_balance']}р.")
+                             f"Рекламный баланс: {user_info['advertising_balance']}р.")
         await message.answer(f"Напишите сумму, которую хотите добавить к балансу", reply_markup=admin_menu())
 
 
 @router.message(state=Admin.up_balance)
 async def edit_balance(message: Message, state: FSMContext):
     try:
-        if float(message.text) <= 5000:
+        if float(message.text) <= 3000:
             data = await state.get_data()
             user_id = data['user_id']
-            await customer.top_up_balance(user_id, float(message.text))
+            await user.admin_deposit(user_id, float(message.text))
             await state.set_state(Admin.edit_balance)
             await state.set_state(Admin.Admin_menu)
             await message.answer(f"Баланс был успешно пополнен", reply_markup=user_management())
         else:
-            await message.answer("Простите, вы не можете изменить баланс более чем на 5000р за раз")
+            await message.answer("Простите, вы не можете изменить баланс более чем на 3000р. за раз")
     except:
         await message.answer('Упс.. Кажется вы вводите не число')

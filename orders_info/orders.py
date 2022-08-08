@@ -4,19 +4,20 @@ import random
 from aiogram.types import Message
 
 from data import Data
-from orders_info.user_info import User
+from orders_info.user_info import User_balance
 
 data = Data()
 
 
-class Order(User):
-    def __init__(self, customer=False, executor=False):
-        super().__init__(customer=customer, executor=executor)
+class Order(User_balance):
+    def __init__(self):
+        super().__init__()
         self.database = data.mongo_data()
         self.collection_order = self.database['orders']
+        self.procent = 2
 
     async def new_order(self, message: Message, link: str, advs_type: str, amount_people: int,
-                        click_price: float, description=None, media_id=None, title=None):
+                        click_price: float, order_sum, description=None, media_id=None, task_name=None):
         """
         +–––––––––––––––––––––––Necessary––––––––––––––––––––––––––+
         |    This function is needed to create orders.             |
@@ -39,17 +40,19 @@ class Order(User):
             print(count_documents)
             if not count_documents:
                 count_documents = 0
-            params = {'_id': count_documents + 1, 'telegram_ID': int(t_id), 'link': link,
-                      'order_name': f'order_{count_documents + 1}', 'advs_type': advs_type,
-                      'amount_people': amount_people, 'click_price': float(click_price), 'order_date': datetime.now(),
-                      'amount_completed': 0, 'status': 'process', 'description': description,
-                      'media_id': media_id, 'title': title}
+            params = {'_id': count_documents + 1, 'telegram_ID': int(t_id), 'link': link, 'advs_type': advs_type,
+                      'amount_people': amount_people, 'task_sum': order_sum, 'click_price': float(click_price), 'task_date': datetime.now(),
+                      'amount_completed': 0, 'status': 'process', 'task_description': description,
+                      'media_id': media_id, 'task_name': task_name}
             await self.collection_order.insert_one(params)
+            edit_sum = float(amount_people) * float(click_price)
+            result_summ = order_sum + (order_sum / 100 * self.procent)
+            await self.edit_balance(t_id, 'advertising', 'minus', float(result_summ))
             return True
         except Exception as error:
             print(error)
 
-    async def order_status(self, order: [int, str]):
+    async def order_status(self, order_id: int):
         """    
         +–––––––––––––––––––––––Necessary––––––––––––––––––––––––––+
         |    This function checks the status of an order           |
@@ -59,28 +62,17 @@ class Order(User):
         +––––––––––––––––––––––––––––––––––––––––––––––––––––––––––+
         """
 
-        if order is int:
+        if order is str:
             order_info = await self.collection_order.find_one({"_id": int(order)})
-            if order['status'] != 'completed':
+            if order_info['status'] != 'completed':
                 if int(order_info['amount_people']) == int(order_info['amount_completed']):
-                    await self.collection.update_one({"_id": int(order)}, {'status': 'completed'})
+                    await self.collection_order.update_one({"order_name": int(order_id)}, {'status': 'completed'})
                     return True
-            else:
-                return True
-
-        elif order is str:
-            order_info = await self.collection_order.find_one({"order_name": str(order)})
-            if order['status'] != 'completed':
-                if int(order_info['amount_people']) == int(order_info['amount_completed']):
-                    await self.collection.update_one({"order_name": str(order)}, {'status': 'completed'})
-                    return True
-            else:
-                return True
         else:
             print('Error')
         return False
 
-    async def update_amount_completed(self, order: [int, str]):
+    async def update_amount_completed(self, order_id: int):
         """
         +–––––––––––––––––––––––Necessary––––––––––––––––––––––––––+
         |    This function is needed to update completed tasks     |
@@ -88,26 +80,21 @@ class Order(User):
         +––––––––––––––––––––––––––––––––––––––––––––––––––––––––––+
         """
         params = {'$inc': {'amount_completed': 1}}
+        await self.collection_order.update_one({"_id": int(order_id)}, params)
 
-        if order is int:
-            await self.collection_order.update_one({"_id": int(order)}, params)
-        elif order is str:
-            await self.collection.update_one({"order_name": str(order)}, params)
-        else:
-            print('Error')
 
     async def order_to_be_executed(self, telegram_id: int, advs_type: str):
 
-        complete_orders = await self.get_completed_orders(telegram_id)
+        complete_orders = await self.get_completed_orders_list(telegram_id)
         async for order in self.collection_order.aggregate(
                 [{"$match": {'$and': [{'advs_type': str(advs_type)},
                                       {'status': 'process'}, {'_id': {'$nin': complete_orders}}]}},
                  {"$sample": {"size": 1}}]):
             return order
 
-    async def completed_orders(self, telegram_id: int, advs_type: str, order_id: int, order_name: str):
+    async def completed_orders(self, telegram_id: int, advs_type: str, order_id: int, click_price: float):
 
         collection = self.collection_order['completed_tasks']
-        params = {'TG_ID': int(telegram_id), 'advs_type': advs_type, 'order_id': order_id,
-                  'order_name': order_name, 'datetime_complete': datetime.now()}
+        params = {'telegram_ID': int(telegram_id), 'advs_type': advs_type, 'task_ID': order_id,
+                  'datetime_complete': datetime.now(), 'click_price': click_price}
         await collection.insert_one(params)
