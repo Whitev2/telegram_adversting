@@ -92,7 +92,7 @@ async def deposit_sum(message: Message, state: FSMContext):
 @router.callback_query(lambda call: 'check_deposit' in call.data)
 async def deposit(query: types.CallbackQuery, state: FSMContext):
     order = query.data.split()[-1]
-    deposit_info = await lava.create_deposit(order)
+    deposit_info = await lava.check_deposit_status(order)
     try:
         if deposit_info['status'] == 'success':
             await query.message.answer("Оплата прошла успешно")
