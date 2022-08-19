@@ -7,6 +7,7 @@ async def telegram(message: Message, role: str):
         user_id = message.from_user.id
         markup = InlineKeyboardBuilder()
         markup.button(text='Канал', callback_data=f'{role} {user_id} channel')
+        markup.button(text='Группа', callback_data=f'{role} {user_id} group')
         markup.button(text='Пост', callback_data=f'{role} {user_id} post')
         if role == 'executor':
             markup.button(text='Все подряд', callback_data=f'{role} {user_id} all')

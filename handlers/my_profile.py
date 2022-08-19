@@ -26,13 +26,19 @@ lava = Lava()
 async def edit_balance(message: Message, state: FSMContext):
     user_id = message.from_user.id
     user_info = await user.get_all_info(telegram_id=user_id)
-    date =  datetime.now() - user_info['datetime_come']
+    date = datetime.now() - user_info['datetime_come']
+
+    refer = user_info['referrer']
+    if refer is None:
+        referrer = 'отсутствует'
+    else:
+        referrer = await user.get_username(refer)
     await message.answer(f"Ваш ID: {user_id}\n"
                          f"Дней в боте: {date.days}\n"
                          f"Статус: {user_info['level']}\n"
                          f"Имя: {message.from_user.first_name}\n"
                          f"Юзернейм: @{message.from_user.username}\n"
-                         f"Ваш наставник: [[Реферер]]\n\n"
+                         f"Ваш наставник: @{referrer}\n\n"
                          f"--------------------\n\n"
                          f"Подписок на канал: [[из базы]]\n"
                          f"Просмотров постов: [[из базы]]\n"
@@ -107,3 +113,10 @@ async def deposit_withdraw(query: types.CallbackQuery, state: FSMContext):
 @router.callback_query(lambda call: call.data == 'history')
 async def deposit_withdraw(query: types.CallbackQuery, state: FSMContext):
     await query.message.answer("История оплат/выводов и чеки")
+
+
+@router.callback_query(lambda call: call.data == 'get_invite_url')
+async def deposit_withdraw(query: types.CallbackQuery, state: FSMContext):
+
+    await query.message.answer(f"Ваша реферальная ссылка:\n"
+                               f"  https://t.me/ADVS_tele_bot?start={str(query.from_user.id)[::-1]}")

@@ -23,7 +23,7 @@ class Get_info:
         try:
 
             user_answer = {'_id': int(t_id), 'username': str(username), 'first_name': str(first_name),
-                           'datetime_come': datetime.now(), 'lg_code': str(lg_code), 'referrals': [],
+                           'datetime_come': datetime.now(), 'lg_code': str(lg_code), 'referrer': None, 'referrals': [],
                            'main_balance': float(0), 'advertising_balance': float(), 'all_time_deposit_advs': float(0),
                            'all_time_main_balance': float(0), 'all_time_withdrawal': float(0), 'main_fines': float(0),
                            'referral_bonus': float(0), 'referral_fines': float(0), 'level': 'Новичек', 'premium': False,
@@ -127,8 +127,8 @@ class User_balance(Get_info):
             except Exception as e:
                 print(e)
         else:
-            ValueError('The type of balance can be "advertising" or "main",'
-                       ' only "plus" and "minus" operations are supported')
+            raise ValueError('The type of balance can be "advertising" or "main",'
+                             ' only "plus" and "minus" operations are supported')
 
 
     async def admin_deposit(self, telegram_id: int,  deposit_sum: float):

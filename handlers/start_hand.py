@@ -17,9 +17,12 @@ from states.executor_states import Executor
 router = Router()
 user = Users()
 
+
 @router.message(commands=['start', 'help'])
 async def start(message: Message, state: FSMContext):
     await state.clear()
+    data = await state.get_data()
+    print(data)
     await user.new_user(message)
     name = message.from_user.first_name
     await message.answer(f"{name},  здравствуйте!\n\nУ меня вы можете заказать рекламу или заработать, просматривая"

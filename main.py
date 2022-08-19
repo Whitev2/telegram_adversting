@@ -4,7 +4,8 @@ from aiogram import Dispatcher
 from aiogram.client.session import aiohttp
 from aiogram.dispatcher.fsm.storage.redis import RedisStorage
 from data import Data
-from handlers import start_hand, customer_menu_hand, executor_menu_hand, information_menu_hand, admin_hand, my_profile
+from handlers import start_hand, customer_menu_hand, executor_menu_hand, information_menu_hand, admin_hand, my_profile, \
+    new_chat
 
 data = Data()
 storage = RedisStorage.from_url(data.redis_url)
@@ -21,6 +22,7 @@ async def main():
     dp.include_router(information_menu_hand.router)
     dp.include_router(admin_hand.router)
     dp.include_router(my_profile.router)
+    dp.include_router(new_chat.router)
     await dp.start_polling(bot)
 
 
