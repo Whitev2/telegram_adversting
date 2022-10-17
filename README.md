@@ -12,3 +12,17 @@ for first start - docker compose build in terminal
 
 for other start - docker compose up
 
+
+##env example:
+
+BOT_TOKEN = TOKEN
+
+MONGO_HOST=localhost
+MONGO_PORT=27018
+MONGO_USER=password
+MONGO_PASSWORD=password
+
+REDIS_URL = redis://localhost:port
+
+LAVA_KEY = KEY FROM LAVA wallet
+

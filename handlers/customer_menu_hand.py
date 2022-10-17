@@ -15,6 +15,7 @@ from orders_info.user_info import Users
 from states.customer_states import Customer
 from states.new_chat_state import Chat
 from tools.chats_check import member_status
+from tools.comission import comission, check_comission
 
 router = Router()
 order = Order()
@@ -94,11 +95,17 @@ async def start_answers(message: Message, state: FSMContext):
         elif float(message.text) >= 0.02:
             data = await state.get_data()
             amount = data['amount']
+            sum_price = amount * float(message.text)
+            result_price = sum_price + await comission(sum_price)
+            comission_number = await check_comission()
             await state.update_data(price=float(message.text))
-            await state.set_state(Customer.price)
+            await state.set_state(Customer.link)
             await message.answer('Ваше задание:\n\n'
                                  f'Кол-во выполнений: {amount}\n'
-                                 f'Стоимость одного выполнения: {message.text}р.')
+                                 f'Стоимость одного выполнения: {message.text}р.\n\n'
+                                 f'Сумма заказа: {sum_price}\n'
+                                 f'Комиссия бота: {comission_number}%\n'
+                                 f'Итого к оплате: {result_price}')
             await message.answer(text)
         else:
             await message.answer("❗ Введенное число меньше 0.02, пожалуйста повторите попытку.")
@@ -113,17 +120,19 @@ async def start_answers(message: Message, state: FSMContext):
 @router.message(state=Customer.link)
 async def start_answers(message: Message, state: FSMContext):
 
-    text = (f'Напишите ссылку на ваш канал.\n\n\n'
-            f'❗ Ссылка должна содержать https://')
+    text = (f'Добавьте бота в ваш канал.\n\n\n'
+            f'❗ Бот должен иметь права администратора\n'
+            f'❗ Нажмите "Проверить" после добавления')
     try:
         if 'https://' in str(message.text) and 't.me' in str(message.text):
             data = await state.get_data()
             amount = data['amount']
-            await state.update_data(amount=int(message.text))
-            await state.set_state(Customer.price)
+            await state.update_data(link=message.text)
+ 
             await message.answer('Ваше задание:\n\n'
-                                 f'Кол-во выполнений: {amount}\n\n\n'
-                                 f'Стоимость одного выполнения: {message.text}')
+                                 f'Кол-во выполнений: {amount}\n'
+                                 f'Стоимость одного выполнения: {message.text}\n'
+                                 f'Ссылка: {message.text}')
             await message.answer(text)
         else:
             await message.answer("❗ Неверная ссылка, пожалуйста повторите попытку.")
